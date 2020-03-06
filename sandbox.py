@@ -14,9 +14,10 @@ from detectron2.config import get_cfg
 from detectron2.utils.visualizer import Visualizer
 from detectron2.data import MetadataCatalog
 
-def readcam():
+
+def video_edges():
     """
-    Example code that is ready to be incorporated, using the webcam, instead of a video file
+    Cam edges quick demo
     :return:
     """
     camera_resolution = (960., 1280.) #720 builtin 960 logitech
@@ -39,16 +40,83 @@ def readcam():
             break
 
 
+def main():
+    """
+    Example code that is ready to be incorporated, using the webcam, instead of a video file
+    :return:
+    """
+    cfg = get_cfg()
+    # add project-specific config (e.g., TensorMask) here if you're not running a model in detectron2's core library
+    cfg.merge_from_file(model_zoo.get_config_file("COCO-InstanceSegmentation/mask_rcnn_R_50_FPN_3x.yaml"))
+    cfg.MODEL.ROI_HEADS.SCORE_THRESH_TEST = 0.5  # set threshold for this model
+    # Find a model from detectron2's model zoo. You can use the https://dl.fbaipublicfiles... url as well
+    cfg.MODEL.WEIGHTS = model_zoo.get_checkpoint_url("COCO-InstanceSegmentation/mask_rcnn_R_50_FPN_3x.yaml")
+    predictor = DefaultPredictor(cfg)
+
+    camera_resolution = (960., 1280.) #720 builtin 960 logitech
+    stream = cv2.VideoCapture(0)
+    a = 1
+    while True:
+        grabbed, frame = stream.read()
+        if not grabbed:
+            break
+
+        output_image = frame #[:, :, ::-1]
+        # do stuff in RGB, such as grab a predict frame for imshow, below
+        # cv2.putText(output_image, "Demo", (10, 20), cv2.FONT_HERSHEY_DUPLEX, 0.6, (0, 100, 0), 1)
+
+
+
+        # im = cv2.imread("./images/manonhorse.jpg")
+        # cv2.imshow('', im)
+        # cv2.waitKey()
+
+        outputs = predictor(frame)
+        # print(outputs["instances"].pred_classes)
+        # print(outputs["instances"].pred_boxes)
+
+        v = Visualizer(frame[:, :, ::-1], MetadataCatalog.get(cfg.DATASETS.TRAIN[0]), scale=1.2)
+        v = v.draw_instance_predictions(outputs["instances"].to("cpu"))
+        # cv2.imshow('', v.get_image()[:, :, ::-1])
+
+        cv2.imshow('', v.get_image()[:, :, ::-1])#[:, :, ::-1])  # convert back to BGR for cv2
+
+        if cv2.waitKey(1) & 0xFF == ord('q'):
+            break
+
+def d2_img_demo():
+    """
+    Stock colab demo of detectron2
+    :return:
+    """
+    setup_logger()
+
+    im = cv2.imread("./images/manonhorse.jpg")
+    # cv2.imshow('', im)
+    # cv2.waitKey()
+    cfg = get_cfg()
+    # add project-specific config (e.g., TensorMask) here if you're not running a model in detectron2's core library
+    cfg.merge_from_file(model_zoo.get_config_file("COCO-InstanceSegmentation/mask_rcnn_R_50_FPN_3x.yaml"))
+    cfg.MODEL.ROI_HEADS.SCORE_THRESH_TEST = 0.5  # set threshold for this model
+    # Find a model from detectron2's model zoo. You can use the https://dl.fbaipublicfiles... url as well
+    cfg.MODEL.WEIGHTS = model_zoo.get_checkpoint_url("COCO-InstanceSegmentation/mask_rcnn_R_50_FPN_3x.yaml")
+    predictor = DefaultPredictor(cfg)
+    outputs = predictor(im)
+    print(outputs["instances"].pred_classes)
+    print(outputs["instances"].pred_boxes)
+
+    v = Visualizer(im[:, :, ::-1], MetadataCatalog.get(cfg.DATASETS.TRAIN[0]), scale=1.2)
+    v = v.draw_instance_predictions(outputs["instances"].to("cpu"))
+    cv2.imshow('', v.get_image()[:, :, ::-1])
+
 def debug():
     img = cv2.imread('./bwout.jpg', cv2.IMREAD_GRAYSCALE)
     (thresh, im_bw) = cv2.threshold(img, 128, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)
-
 
     amax = np.argmax(np.argmax(im_bw, axis=0))
 
     cv2.imshow('thresh {}'.format(thresh), im_bw)
     cv2.waitKey()
-
 
 # def pyimgsearch():
 #     # load the image, convert it to grayscale, and blur it slightly
@@ -68,22 +136,10 @@ def debug():
 #     c = max(cnts, key=cv2.contourArea)
 
 if __name__ == '__main__':
-    assert torch.__version__ == '1.4.0', print(torch.__version__)
+    # assert torch.__version__ == '1.4.0', print(torch.__version__)
     setup_logger()
+    main()
 
-    im = cv2.imread("./images/manonhorse.jpg")
-    # cv2.imshow('', im)
-    # cv2.waitKey()
-    cfg = get_cfg()
-    # add project-specific config (e.g., TensorMask) here if you're not running a model in detectron2's core library
-    cfg.merge_from_file(model_zoo.get_config_file("COCO-InstanceSegmentation/mask_rcnn_R_50_FPN_3x.yaml"))
-    cfg.MODEL.ROI_HEADS.SCORE_THRESH_TEST = 0.5  # set threshold for this model
-    # Find a model from detectron2's model zoo. You can use the https://dl.fbaipublicfiles... url as well
-    cfg.MODEL.WEIGHTS = model_zoo.get_checkpoint_url("COCO-InstanceSegmentation/mask_rcnn_R_50_FPN_3x.yaml")
-    predictor = DefaultPredictor(cfg)
-    outputs = predictor(im)
-    print(outputs["instances"].pred_classes)
-    print(outputs["instances"].pred_boxes)
     # pyimgsearch()
     # debug()
     # readcam()
