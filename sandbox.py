@@ -40,8 +40,6 @@ def video_edges():
             break
 
 
-
-
 def d2_img_demo():
     """
     Stock colab demo of detectron2
