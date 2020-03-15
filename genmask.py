@@ -146,7 +146,7 @@ def augmentation_seq():
         # iaa.GaussianBlur(sigma=(0, 3.0))
     ])
 
-    _sometimes = lambda aug: iaa.Sometimes(0.5, aug)
+    _sometimes = lambda aug: iaa.Sometimes(0.85, aug)
     seq_complex = iaa.Sequential(
         [
             # apply the following augmenters to most images
@@ -159,21 +159,26 @@ def augmentation_seq():
             #     pad_mode=ia.ALL,
             #     pad_cval=(0, 255)
             # )),
-            _sometimes(iaa.Affine(
-                scale={"x": (0.8, 1.2), "y": (0.8, 1.2)},
+            _sometimes(
+                iaa.Affine(
+                # scale={"x": (0.5, 2.5), "y": (0.5, 2.5)},
                 # scale images to 80-120% of their size, individually per axis
-                translate_percent={"x": (-0.2, 0.2), "y": (-0.2, 0.2)},  # translate by -20 to +20 percent (per axis)
+                # translate_percent={"x": (-0.2, 0.2), "y": (-0.2, 0.2)},  # translate by -20 to +20 percent (per axis)
                 rotate=(-45, 45),  # rotate by -45 to +45 degrees
-                shear=(-16, 16),  # shear by -16 to +16 degrees
-                order=[0, 1],  # use nearest neighbour or bilinear interpolation (fast)
-                cval=(0, 255),  # if mode is constant, use a cval between 0 and 255
-                mode=ia.ALL  # use any of scikit-image's warping modes (see 2nd image from the top for examples)
-            )),
+                # shear=(-16, 16),  # shear by -16 to +16 degrees
+                # order=[0, 1],  # use nearest neighbour or bilinear interpolation (fast)
+                cval=(0, 100),  # if mode is constant, use a cval between 0 and 255
+                # mode=ia.ALL  # use any of scikit-image's warping modes (see 2nd image from the top for examples)
+                ),
+            ),
+            _sometimes(
+                iaa.Resize((0.5, 3))
+            ),
             # execute 0 to 5 of the following (less important) augmenters per image
             # don't execute all of them, as that would often be way too strong
-            iaa.SomeOf((0, 5),
+            iaa.SomeOf((3, 5),
                        [
-                           _sometimes(iaa.Superpixels(p_replace=(0, 1.0), n_segments=(20, 200))),
+                           # _sometimes(iaa.Superpixels(p_replace=(0, 1.0), n_segments=(20, 200))),
                            # convert images into their superpixel representation
                            iaa.OneOf([
                                iaa.GaussianBlur((0, 3.0)),  # blur images with a sigma between 0 and 3.0
@@ -186,37 +191,37 @@ def augmentation_seq():
                            # iaa.Emboss(alpha=(0, 1.0), strength=(0, 2.0)),  # emboss images
                            # # search either for all edges or for directed edges,
                            # # blend the result with the original image using a blobby mask
-                           iaa.SimplexNoiseAlpha(iaa.OneOf([
-                               iaa.EdgeDetect(alpha=(0.5, 1.0)),
-                               iaa.DirectedEdgeDetect(alpha=(0.5, 1.0), direction=(0.0, 1.0)),
-                           ])),
-                           iaa.AdditiveGaussianNoise(loc=0, scale=(0.0, 0.05 * 255), per_channel=0.5),
+                           # iaa.SimplexNoiseAlpha(iaa.OneOf([
+                           #     iaa.EdgeDetect(alpha=(0.5, 1.0)),
+                           #     iaa.DirectedEdgeDetect(alpha=(0.5, 1.0), direction=(0.0, 1.0)),
+                           # ])),
+                           # iaa.AdditiveGaussianNoise(loc=0, scale=(0.0, 0.05 * 255), per_channel=0.5),
                            # add gaussian noise to images
-                           iaa.OneOf([
-                               iaa.Dropout((0.01, 0.1), per_channel=0.5),  # randomly remove up to 10% of the pixels
-                               iaa.CoarseDropout((0.03, 0.15), size_percent=(0.02, 0.05), per_channel=0.2),
-                           ]),
+                           # iaa.OneOf([
+                           #     iaa.Dropout((0.01, 0.1), per_channel=0.5),  # randomly remove up to 10% of the pixels
+                           #     iaa.CoarseDropout((0.03, 0.15), size_percent=(0.02, 0.05), per_channel=0.2),
+                           # ]),
                            # iaa.Invert(0.05, per_channel=True),  # invert color channels
-                           iaa.Add((-10, 10), per_channel=0.5),
+                           # iaa.Add((-10, 10), per_channel=0.5),
                            # change brightness of images (by -10 to 10 of original value)
-                           iaa.AddToHueAndSaturation((-20, 20)),  # change hue and saturation
+                           iaa.AddToHueAndSaturation((-5, 5)),  # change hue and saturation
                            # either change the brightness of the whole image (sometimes
                            # per channel) or change the brightness of subareas
-                           iaa.OneOf([
-                               iaa.Multiply((0.5, 1.5), per_channel=0.5),
-                               iaa.FrequencyNoiseAlpha(
-                                   exponent=(-4, 0),
-                                   first=iaa.Multiply((0.5, 1.5), per_channel=True),
-                                   second=iaa.LinearContrast((0.5, 2.0))
-                               )
-                           ]),
-                           iaa.LinearContrast((0.5, 2.0), per_channel=0.5),  # improve or worsen the contrast
+                           # iaa.OneOf([
+                           #     iaa.Multiply((0.5, 1.5), per_channel=0.5),
+                           #     iaa.FrequencyNoiseAlpha(
+                           #         exponent=(-1, 0),
+                           #         first=iaa.Multiply((0.85, 1.15), per_channel=True),
+                           #         second=iaa.LinearContrast((0.8, 1.2))
+                           #     )
+                           # ]),
+                           # iaa.LinearContrast((0.75, 1.25), per_channel=0.2),  # improve or worsen the contrast
                            # iaa.Grayscale(alpha=(0.0, 1.0)),
                            # _sometimes(iaa.ElasticTransformation(alpha=(0.5, 3.5), sigma=0.25)),
                            # # move pixels locally around (with random strengths)
                            # _sometimes(iaa.PiecewiseAffine(scale=(0.01, 0.05))),
                            # # sometimes move parts of the image around
-                           _sometimes(iaa.PerspectiveTransform(scale=(0.01, 0.1)))
+                           # _sometimes(iaa.PerspectiveTransform(scale=(0.01, 0.1)))
                        ],
                        random_order=True
                        )
@@ -289,7 +294,12 @@ def main():
 
     images = [imgcolor]
     segmentation_maps = [imask]
-    images_aug, seg_aug = seq(images=images, segmentation_maps=segmentation_maps)
+
+    images_aug, seg_aug = [], []
+    for _ in range(10):
+        newimg, newmask = seq(images=images, segmentation_maps=segmentation_maps)
+        images_aug.extend(newimg)
+        seg_aug.extend(newmask)
 
     image_id = 1  # logo_id
     annotation_id = 1  # the selection from category_ids in this case 0, 255, 0: logo_id
@@ -301,14 +311,14 @@ def main():
 
     for k, i in enumerate(images_aug):
         # TODO MAJOR whiten borders image
-        cv2.imwrite('./traindata/{}.jpg'.format(k), cv2.cvtColor(i, cv2.COLOR_RGB2BGR))
+        cv2.imwrite('./traindata/logo{}.jpg'.format(k), cv2.cvtColor(i, cv2.COLOR_RGB2BGR))
 
         color = '(0, 255, 0)'
         category_id = category_ids[image_id][color]
-        mask_img = seg_aug[k][:,:,1]
+        mask_img = seg_aug[k][:, :, 1]
         annotation = create_sub_mask_annotation(mask_img, image_id, category_id, annotation_id, is_crowd)
         annotations.append(annotation)
-        cv2.imwrite('./traindata/maskout.jpg', seg_aug[k])
+        cv2.imwrite('./traindata/masks/mask{}.jpg'.format(k), seg_aug[k])
 
     print(json.dumps(annotations))
     with open('./solo.json', 'w') as f:
