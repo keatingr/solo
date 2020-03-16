@@ -23,10 +23,10 @@ coco=COCO(annFile)
 # display COCO categories and supercategories
 cats = coco.loadCats(coco.getCatIds())
 nms=[cat['name'] for cat in cats]
-print('COCO categories: \n{}\n'.format(' '.join(nms)))
+# print('COCO categories: \n{}\n'.format(' '.join(nms)))
 
 nms = set([cat['supercategory'] for cat in cats])
-print('COCO supercategories: \n{}'.format(' '.join(nms)))
+# print('COCO supercategories: \n{}'.format(' '.join(nms)))
 
 #%%
 
@@ -41,7 +41,9 @@ print('COCO supercategories: \n{}'.format(' '.join(nms)))
 # load and display image
 # I = io.imread('%s/images/%s/%s'%(dataDir,dataType,img['file_name']))
 # use url to load image
-I = io.imread('./traindata/logo9.jpg')
+import random
+idx = random.randint(0,99)
+I = io.imread('./traindata/logo{}.jpg'.format(idx))
 plt.axis('off')
 plt.imshow(I)
 plt.show()
@@ -50,7 +52,7 @@ plt.show()
 
 # load and display instance annotations
 plt.imshow(I); plt.axis('off')
-annIds = coco.getAnnIds(imgIds=1, catIds=[91], iscrowd=None)
-anns = coco.loadAnns(annIds)
+# annIds = coco.getAnnIds(imgIds=59, catIds=[91], iscrowd=None)
+anns = coco.loadAnns([idx])
 coco.showAnns(anns)
 plt.show()

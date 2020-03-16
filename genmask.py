@@ -118,7 +118,7 @@ def get_mask(input_img):
 
     for col in range(w):
         for row in range(h):
-            if img[col][row] < 250:  # TODO revisit thresh for white in original png logo
+            if img[col][row] < 255:  # TODO revisit thresh for white in original png logo or will be transparent/actual border so great news
                 maskout[col][row][1] = 255
 
     return maskout
@@ -266,9 +266,9 @@ def create_sub_mask_annotation(sub_mask, image_id, category_id, annotation_id, i
     annotation = {
         'segmentation': segmentations,
         'iscrowd': is_crowd,
-        'image_id': image_id,
+        'image_id': image_id,  # both are coming from the k enumerate
         'category_id': category_id,
-        'id': annotation_id,
+        'id': image_id,  # both are coming from the k enumerate TODO this fixed an issue for what cocovis_custom.py is expecting and that's native coco tools so the original poster was wrong (was using custom display function now makes sense why author just didn't kow about coco tools)
         'bbox': bbox,
         'area': area
     }
@@ -298,9 +298,10 @@ def main():
 
     logo_id, unused_id = [1, 2]
 
+    color = '(0, 255, 0)'
     category_ids = {
         1: {
-            '(0, 255, 0)': logo_id,
+            color: logo_id,
         },
     }
 
@@ -315,7 +316,7 @@ def main():
     segmentation_maps = [imask]
 
     images_aug, seg_aug = [], []
-    for _ in range(10):
+    for _ in range(100):
         newimg, newmask = seq(images=images, segmentation_maps=segmentation_maps)
         images_aug.extend(newimg)
         seg_aug.extend(newmask)
@@ -337,11 +338,10 @@ def main():
         cv2.imwrite(os.path.join('./traindata/', fname), cv2.cvtColor(i, cv2.COLOR_RGB2BGR))
         imginfo.append(file_meta(fname, k, height=i.shape[1], width=i.shape[0]))  # TODO test this should be cols(w) rows(h) for now ok because it's square
 
-        color = '(0, 255, 0)'
         # TODO was deriving cat id from the mask files category_id = category_ids[image_id][color]
         category_id = 91  # see json
         mask_img = seg_aug[k][:, :, 1]
-        image_id = k + 1  # seems to favor 1 indexing not zero indexing
+        image_id = k  # TODO VERIFY will populate id and image_id make sure this is appropriate as it diverges from the example, which was using category_id or something
         annotation = create_sub_mask_annotation(mask_img, image_id, category_id, annotation_id, is_crowd)
         annotations.append(annotation)
         cv2.imwrite('./traindata/masks/mask{}.jpg'.format(k), seg_aug[k])

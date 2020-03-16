@@ -1,3 +1,8 @@
+Instructions
+- run genmask.py to obtain a solo.json
+- 
+
+
 Demo for several approaches
 0a) show stock coco mask drawing
 0b) draw coco mask on a custom task - the solo synthetic dataset
