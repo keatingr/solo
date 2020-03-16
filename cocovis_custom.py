@@ -45,8 +45,8 @@ import random
 idx = random.randint(0,99)
 I = io.imread('./traindata/logo{}.jpg'.format(idx))
 plt.axis('off')
-plt.imshow(I)
-plt.show()
+# plt.imshow(I)
+# plt.show()
 
 #%%
 
