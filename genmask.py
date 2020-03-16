@@ -9,6 +9,7 @@ import numpy as np                                 # (pip install numpy)
 from skimage import measure                        # (pip install scikit-image)
 from shapely.geometry import Polygon, MultiPolygon # (pip install Shapely)
 import json
+import os
 
 _KERAS_BACKEND = None
 _KERAS_LAYERS = None
@@ -275,6 +276,23 @@ def create_sub_mask_annotation(sub_mask, image_id, category_id, annotation_id, i
     return annotation
 
 
+def file_meta(fname, idx, height=0, width=0):
+    """
+    Generate metadata for coco annotations images section
+    :return:
+    """
+    return {
+      "license": 1,
+      "file_name": fname,
+      "coco_url": "",
+      "height": height,
+      "width": width,
+      "date_captured": "2020-01-01 00:00:01",
+      "flickr_url": "",
+      "id": idx
+    }
+
+
 def main():
     # https://www.immersivelimit.com/tutorials/create-coco-annotations-from-scratch
 
@@ -302,29 +320,36 @@ def main():
         images_aug.extend(newimg)
         seg_aug.extend(newmask)
 
-    image_id = 1  # logo_id
     annotation_id = 1  # the selection from category_ids in this case 0, 255, 0: logo_id
     is_crowd = 0
+
+    with open('./solo_template.json', 'r') as f:
+        ann_template = json.load(f)
 
     # TODO MAJOR SOMETIMES HAS A -1 DUE TO SOME AUGMETATION STRIP OUT SOME OF THE IRRELEVANT AUGMENTATIONS
     # TODO MAJOR SOMETIMES THERE'S BLACK IN THE AUGMETNATION SO THE MASK ROUTINE ADDS THOSE SPOTS TO THE MASK
     annotations = []
+    imginfo = []
 
     for k, i in enumerate(images_aug):
         # TODO MAJOR whiten borders image
-        cv2.imwrite('./traindata/logo{}.jpg'.format(k), cv2.cvtColor(i, cv2.COLOR_RGB2BGR))
+        fname = 'logo{}.jpg'.format(k)
+        cv2.imwrite(os.path.join('./traindata/', fname), cv2.cvtColor(i, cv2.COLOR_RGB2BGR))
+        imginfo.append(file_meta(fname, k, height=i.shape[1], width=i.shape[0]))  # TODO test this should be cols(w) rows(h) for now ok because it's square
 
         color = '(0, 255, 0)'
-        category_id = category_ids[image_id][color]
+        # TODO was deriving cat id from the mask files category_id = category_ids[image_id][color]
+        category_id = 91  # see json
         mask_img = seg_aug[k][:, :, 1]
+        image_id = k + 1  # seems to favor 1 indexing not zero indexing
         annotation = create_sub_mask_annotation(mask_img, image_id, category_id, annotation_id, is_crowd)
         annotations.append(annotation)
         cv2.imwrite('./traindata/masks/mask{}.jpg'.format(k), seg_aug[k])
-        with open('./solo_template.json', 'r') as f:
-            b = json.load(f)
-        b['annotations'] = annotations
-        with open('./solo.json', 'w') as f:
-            f.write(json.dumps(b))
+
+    ann_template['annotations'] = annotations
+    ann_template['images'] = imginfo
+    with open('./solo.json', 'w') as f:
+        f.write(json.dumps(ann_template))
 
 
 if __name__ == '__main__':

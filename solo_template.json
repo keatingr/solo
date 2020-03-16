@@ -1,11 +1,11 @@
 {
   "info": {
-    "description": "COCO 2017 Dataset",
+    "description": "Solo Logo Dataset",
     "url": "http://cocodataset.org",
-    "version": "1.0",
-    "year": 2017,
-    "contributor": "COCO Consortium",
-    "date_created": "2017/09/01"
+    "version": "0.1",
+    "year": 2020,
+    "contributor": "Mark",
+    "date_created": "2020/3/16"
   },
   "licenses": [
     {
@@ -68,9 +68,9 @@
       "name": "person"
     },
     {
-      "supercategory": "logo",
+      "supercategory": "vehicle",
       "id": 2,
-      "name": "solo"
+      "name": "bicycle"
     },
     {
       "supercategory": "vehicle",
@@ -461,6 +461,11 @@
       "supercategory": "indoor",
       "id": 90,
       "name": "toothbrush"
+    },
+    {
+      "supercategory": "logo",
+      "id": 91,
+      "name": "solo"
     }
   ]
 }
