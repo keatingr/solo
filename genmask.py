@@ -251,7 +251,8 @@ def create_sub_mask_annotation(sub_mask, image_id, category_id, annotation_id, i
         poly = poly.simplify(1.0, preserve_topology=False)
         polygons.append(poly)
         segmentation = np.array(poly.exterior.coords).ravel().tolist()
-        segmentations.append(segmentation)
+        if len(segmentation) > 0:
+            segmentations.append(segmentation)
 
     # Combine the polygons to calculate the bounding box and area
     multi_poly = MultiPolygon(polygons)
@@ -319,10 +320,11 @@ def main():
         annotation = create_sub_mask_annotation(mask_img, image_id, category_id, annotation_id, is_crowd)
         annotations.append(annotation)
         cv2.imwrite('./traindata/masks/mask{}.jpg'.format(k), seg_aug[k])
-
-    print(json.dumps(annotations))
-    with open('./solo.json', 'w') as f:
-        f.write(json.dumps(annotations))
+        with open('./solo_template.json', 'r') as f:
+            b = json.load(f)
+        b['annotations'] = annotations
+        with open('./solo.json', 'w') as f:
+            f.write(json.dumps(b))
 
 
 if __name__ == '__main__':
