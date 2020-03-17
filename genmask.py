@@ -153,25 +153,13 @@ def augmentation_seq():
             # apply the following augmenters to most images
             iaa.Fliplr(0.5),  # horizontally flip 50% of all images
             iaa.Flipud(0.2),  # vertically flip 20% of all images
-            # TODO add scaling
             # crop images by -5% to 10% of their height/width
             # _sometimes(iaa.CropAndPad(
             #     percent=(-0.05, 0.1),
             #     pad_mode=ia.ALL,
             #     pad_cval=(0, 255)
             # )),
-            _sometimes(
-                iaa.Affine(
-                # scale={"x": (0.5, 2.5), "y": (0.5, 2.5)},
-                # scale images to 80-120% of their size, individually per axis
-                # translate_percent={"x": (-0.2, 0.2), "y": (-0.2, 0.2)},  # translate by -20 to +20 percent (per axis)
-                rotate=(-45, 45),  # rotate by -45 to +45 degrees
-                # shear=(-16, 16),  # shear by -16 to +16 degrees
-                # order=[0, 1],  # use nearest neighbour or bilinear interpolation (fast)
-                cval=(0, 100),  # if mode is constant, use a cval between 0 and 255
-                # mode=ia.ALL  # use any of scikit-image's warping modes (see 2nd image from the top for examples)
-                ),
-            ),
+
             _sometimes(
                 iaa.Resize((0.5, 3))
             ),
@@ -225,9 +213,21 @@ def augmentation_seq():
                            # _sometimes(iaa.PerspectiveTransform(scale=(0.01, 0.1)))
                        ],
                        random_order=True
-                       )
+                       ),
+            _sometimes(
+                iaa.Affine(
+                    # scale={"x": (0.5, 2.5), "y": (0.5, 2.5)},
+                    # scale images to 80-120% of their size, individually per axis
+                    # translate_percent={"x": (-0.2, 0.2), "y": (-0.2, 0.2)},  # translate by -20 to +20 percent (per axis)
+                    # shear=(-16, 16),  # shear by -16 to +16 degrees
+                    # order=[0, 1],  # use nearest neighbour or bilinear interpolation (fast)
+                    # TODO add this back cval=(0, 100),  # if mode is constant, use a cval between 0 and 255
+                    rotate=(-45, 45),  # rotate by -45 to +45 degrees
+                    # mode=ia.ALL  # use any of scikit-image's warping modes (see 2nd image from the top for examples)
+                ),
+            ),
         ],
-        random_order=True
+        random_order=False
     )
     return seq_complex
 
