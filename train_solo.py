@@ -28,23 +28,24 @@ if __name__ == '__main__':
     from detectron2.data import MetadataCatalog
 
     MetadataCatalog.get("solo_dataset").thing_classes = ["solo"]
+    dataset_dicts = DatasetCatalog.get("solo_dataset")
 
-    cfg = get_cfg()
-    cfg.merge_from_file("./configs/mask_rcnn_R_50_FPN_3x.yaml")  #./detectron2_repo/configs/COCO-InstanceSegmentation/mask_rcnn_R_50_FPN_3x.yaml
-    # cfg.DATASETS.TRAIN = ("./images/balloon/train",)
-    cfg.DATASETS.TEST = ()  # no metrics implemented for this dataset
-    cfg.DATALOADER.NUM_WORKERS = 2
-    cfg.MODEL.WEIGHTS = "detectron2://COCO-InstanceSegmentation/mask_rcnn_R_50_FPN_3x/137849600/model_final_f10217.pkl"  # initialize from model zoo
-    cfg.SOLVER.IMS_PER_BATCH = 2
-    cfg.SOLVER.BASE_LR = 0.00025
-    cfg.SOLVER.MAX_ITER = 300  # 300 iterations seems good enough, but you can certainly train longer
-    cfg.MODEL.ROI_HEADS.BATCH_SIZE_PER_IMAGE = 128  # faster, and good enough for this toy dataset
-    cfg.MODEL.ROI_HEADS.NUM_CLASSES = 1  # only has one class (ballon)
-
-    os.makedirs(cfg.OUTPUT_DIR, exist_ok=True)
-    trainer = DefaultTrainer(cfg)
-    trainer.resume_or_load(resume=False)
-    trainer.train()
+    # cfg = get_cfg()
+    # cfg.merge_from_file("./configs/mask_rcnn_R_50_FPN_3x.yaml")  #./detectron2_repo/configs/COCO-InstanceSegmentation/mask_rcnn_R_50_FPN_3x.yaml
+    # cfg.DATASETS.TRAIN = ("solo_dataset")
+    # cfg.DATASETS.TEST = ()  # no metrics implemented for this dataset
+    # cfg.DATALOADER.NUM_WORKERS = 2
+    # cfg.MODEL.WEIGHTS = "detectron2://COCO-InstanceSegmentation/mask_rcnn_R_50_FPN_3x/137849600/model_final_f10217.pkl"  # initialize from model zoo
+    # cfg.SOLVER.IMS_PER_BATCH = 2
+    # cfg.SOLVER.BASE_LR = 0.00025
+    # cfg.SOLVER.MAX_ITER = 300  # 300 iterations seems good enough, but you can certainly train longer
+    # cfg.MODEL.ROI_HEADS.BATCH_SIZE_PER_IMAGE = 128  # faster, and good enough for this toy dataset
+    # cfg.MODEL.ROI_HEADS.NUM_CLASSES = 1  # only has one class (ballon)
+    #
+    # os.makedirs(cfg.OUTPUT_DIR, exist_ok=True)
+    # trainer = DefaultTrainer(cfg)
+    # trainer.resume_or_load(resume=False)
+    # trainer.train()
 
     # # load weights
     # cfg.MODEL.WEIGHTS = os.path.join(cfg.OUTPUT_DIR, "model_final.pth")
