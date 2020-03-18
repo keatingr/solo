@@ -30,6 +30,14 @@ if __name__ == '__main__':
     MetadataCatalog.get("solo_dataset").thing_classes = ["solo"]
     dataset_dicts = DatasetCatalog.get("solo_dataset")
 
+    import random
+
+    for d in random.sample(dataset_dicts, 3):
+        img = cv2.imread(d["file_name"])
+        visualizer = Visualizer(img[:, :, ::-1], metadata=fruits_nuts_metadata, scale=0.5)
+        vis = visualizer.draw_dataset_dict(d)
+        cv2_imshow(vis.get_image()[:, :, ::-1])
+
     # cfg = get_cfg()
     # cfg.merge_from_file("./configs/mask_rcnn_R_50_FPN_3x.yaml")  #./detectron2_repo/configs/COCO-InstanceSegmentation/mask_rcnn_R_50_FPN_3x.yaml
     # cfg.DATASETS.TRAIN = ("solo_dataset")
