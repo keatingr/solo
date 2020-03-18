@@ -339,7 +339,7 @@ def main():
         imginfo.append(file_meta(fname, k, height=i.shape[1], width=i.shape[0]))  # TODO test this should be cols(w) rows(h) for now ok because it's square
 
         # TODO was deriving cat id from the mask files category_id = category_ids[image_id][color]
-        category_id = 91  # see json
+        category_id = 1  # see json
         mask_img = seg_aug[k][:, :, 1]
         image_id = k  # TODO VERIFY will populate id and image_id make sure this is appropriate as it diverges from the example, which was using category_id or something
         annotation = create_sub_mask_annotation(mask_img, image_id, category_id, annotation_id, is_crowd)
