@@ -1,6 +1,8 @@
 traindata/**
 valdata/**
 solo.json
+images/**
+models/**
 
 # Created by .ignore support plugin (hsz.mobi)
 ### Python template

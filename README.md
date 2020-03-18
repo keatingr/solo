@@ -1,3 +1,6 @@
+Obtain Models
+
+
 Instructions
 - run genmask.py to obtain a solo.json
 - 
